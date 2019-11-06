@@ -1,0 +1,95 @@
+body {
+  margin : 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  width: 800px;
+  background-color: #FF6600;
+  padding: 2px;
+}
+
+header ul {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+header li {
+  list-style: none;
+  margin: 0 2px;
+  font-weight: 500;
+}
+
+.main-img {
+  border: solid 1px white;
+}
+
+.main-title {
+  margin-left: 5px;
+  margin-right: 7px;
+  font-weight: 800;
+}
+
+.login {
+  margin-left: auto;
+  margin-right: 5px;
+}
+
+section {
+  width: 800px;
+  padding: 0 2px 2px 2px;
+  background-color: #F6F6EF;
+}
+
+tbody {
+  font-size: 13px;
+}
+
+.tr_space {
+  height: 3px;
+}
+
+.td_number {
+  text-align: end;
+  color: rgb(130, 130, 130);
+}
+
+.span_triangle{
+  display: inline-block;
+  width: 0px;
+  height: 0px;
+  border-top: 8px solid none;
+  border-bottom: 8px solid rgb(130, 130, 130);
+  border-right: 4px solid transparent;
+  border-left: 4px solid  transparent;
+  padding: 0px;
+  margin-top: 5px;
+}
+
+.span_url {
+  font-size: 11px;
+  color: rgb(130, 130, 130);
+  margin-left: 5px;
+}
+
+.span_url:hover, .span_user:hover, .span_user:hover, .span_time:hover, .span_hide:hover, .span_comment:hover {
+  text-decoration: underline;
+}
+
+.main-img, .main-img, .main-title-li, .span_triangle, .td_title, .span_url, .span_user, .span_time, .span_hide, .span_comment {
+  cursor: pointer;
+}
+
+.td_contents, .span_user, .span_time, .span_hide, .span_comment {
+  font-size: 12px;
+  color: rgb(130, 130, 130);
+}
