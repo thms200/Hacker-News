@@ -16,7 +16,8 @@
 const storyID = []; //Top Stories 10개 (고유 item id 10개)
 const storyID_Item = []; //item id 별 정보
 
-let content = document.querySelector(".contents")
+let content = document.querySelector(".contents");
+// let span_url = document.querySelectorAll(".span_url");
 
 // storyID (출차: https://github.com/HackerNews/API)
 fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
@@ -24,7 +25,7 @@ fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
   return response.json();
 })
 .then(function(json) {
-  let data = json.slice(0,10);
+  let data = json.slice(0, 5);
   storyID.push(data);
   return storyID[0];
 })
@@ -38,9 +39,15 @@ fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
     .then(function(json){
       // storyID_Item.push(json);
       storyID_Item[i] = json; //Top Stories에서 반환받은 배열 내의 ID 순서와 실제로 화면에 그려진 Item List의 순서가 일치
-      if (storyID_Item.length === 10) {
+      if (storyID_Item.length === 5) {
         makeList(storyID_Item);
+
         console.log(storyID_Item); // item 정보
+
+        let td_title = document.querySelectorAll(".td_title");
+        for (let i = 0; i < td_title.length; i++) {
+          td_title[i].addEventListener("click", makeUrl.bind(null, storyID_Item));
+        }
       }
     });
   }
@@ -106,8 +113,36 @@ function makeList (data) {
 
     let span_time = document.createElement("span"); //item time;
     span_time.classList.add("span_time");
-    let time = "8 hours" //test version
-    span_time.innerHTML = " " + time + " ago";
+    let time = 0;
+    let time_unit = "";
+
+    let today = new Date();
+    let today_month = today.getMonth();
+    let today_date = today.getDate();
+    let today_hour = today.getHours();
+    let today_minute = today.getMinutes();
+
+    let itemTime = new Date(data[i].time * 1000);
+    let timeTime_month = itemTime.getMonth();
+    let timeTime_date = itemTime.getDate();
+    let timeTime_hour = itemTime.getHours();
+    let timeTime_minute = itemTime.getMinutes();
+
+    if(today_month !== timeTime_month) {
+      time = Math.floor(today_month - timeTime_month);
+      time_unit = "months"
+    } else if (today_date !== timeTime_date) {
+      time = Math.floor(today_date - timeTime_date);
+      time_unit = "days"
+    } else if (today_hour !== timeTime_hour) {
+      time = Math.floor(today_hour - timeTime_hour);
+      time_unit = "hours"
+    } else if (today_minute !== timeTime_minute) {
+      time = Math.floor(today_minute - timeTime_minute);
+      time_unit = "minutes"
+    }
+
+    span_time.innerHTML = " " + time + " " + time_unit + " ago";
 
     let span_division_one = document.createElement("span"); // "|" 
     span_division_one.innerHTML = " | ";
@@ -142,3 +177,15 @@ function makeList (data) {
     content.appendChild(tr_space);
   }
 };
+
+function makeUrl (data) {
+  let click_title = event.target.innerText;
+  click_title = click_title.split("(")[0];
+  for (let i = 0 ; i < data.length; i++) {
+    let check_title = data[i].title;
+
+    if (check_title === click_title) {
+      window.open(data[i].url);
+    }
+  }
+}
