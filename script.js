@@ -16,8 +16,7 @@
 const storyID = []; //Top Stories 10개 (고유 item id 10개)
 const storyID_Item = []; //item id 별 정보
 
-let content = document.querySelector(".contents");
-// let span_url = document.querySelectorAll(".span_url");
+let content = document.querySelector(".contents"); //item list가 만들어지는 table-tbody tag
 
 // storyID (출차: https://github.com/HackerNews/API)
 fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
@@ -39,8 +38,9 @@ fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
     .then(function(json){
       // storyID_Item.push(json);
       storyID_Item[i] = json; //Top Stories에서 반환받은 배열 내의 ID 순서와 실제로 화면에 그려진 Item List의 순서가 일치
-      if (storyID_Item.length === 5) {
+      if (storyID_Item.length === 5 && checkArr(storyID_Item) === true) {
         makeList(storyID_Item);
+        makeMore();
 
         console.log(storyID_Item); // item 정보
 
@@ -178,6 +178,7 @@ function makeList (data) {
   }
 };
 
+//title 누르면 해당 url로 이동
 function makeUrl (data) {
   let click_title = event.target.innerText;
   click_title = click_title.split("(")[0];
@@ -188,4 +189,110 @@ function makeUrl (data) {
       window.open(data[i].url);
     }
   }
+};
+
+//storyID_Item의 값이 모두 채워진 상태로 다음 단계(makeList함수)로 넘어가도록 중간 check함.
+function checkArr (arr) {
+  let value = true;
+  for(let i = 0; i < arr.length; i++) {
+    if(arr[i] === undefined) {
+      value = false;
+      break;
+    }
+  } return value;
+};
+
+//"More" + 구분선 구현
+function makeMore () {
+  //More 작성
+  let tr_more = document.createElement("tr");
+  tr_more.classList.add("tr_more");
+
+  let td_space = document.createElement("td"); //sub 시작 공백
+  td_space.colSpan = "2";
+
+  let td_text = document.createElement("td"); //'more' text
+  td_text.classList.add("td_text");
+  td_text.innerHTML = "More";
+  
+  //구분선(주황색)
+  let tr_line = document.createElement("tr");
+  let td_line = document.createElement("td");
+  td_line.colSpan = "3";
+  td_line.classList.add("td_line");
+
+  //space 주기
+  let tr_space = document.createElement("tr");
+  tr_space.classList.add("tr_space");
+  
+  tr_more.appendChild(td_space);
+  tr_more.appendChild(td_text);
+  tr_line.appendChild(td_line);
+  content.appendChild(tr_more);
+  content.appendChild(tr_space);
+  content.appendChild(tr_line);
 }
+
+//header ul-li, login 만들기
+(function makeHeader () {
+  let headerUl = document.querySelector(".header-ul");
+  let main_title = document.createElement("li");
+  main_title.classList.add("main-title");
+  main_title.innerHTML = "Hacker News";
+  headerUl.appendChild(main_title);
+
+  let headerText = ["new", "past", "comments", "ask", "show", "jobs", "submit"];
+  for(let i = 0; i < headerText.length; i++) {
+    let main_title_list = document.createElement("li");
+    main_title_list.classList.add("main-title-list");
+    main_title_list.innerHTML = headerText[i];
+
+    headerUl.appendChild(main_title_list);
+
+    if(i !== 6) {
+      let division_li = document.createElement("li");
+      division_li.innerHTML = " |";
+
+      headerUl.appendChild(division_li);
+    }
+  }
+
+  let login = document.createElement("div");
+  login.classList.add("login");
+  login.innerHTML = "login";
+  headerUl.parentElement.appendChild(login);
+})();
+
+//footer만들기
+(function makeFooter() {
+  let footerUl = document.querySelector(".footer-ul");
+
+  let footerText = ["Guidelines", "FAQ", "Support", "API", "Security", "Lists", "Bookmarklet", "Legal", "Apply to YC", "Contact"];
+  for(let i = 0 ; i < footerText.length; i++) {
+    let footer_list = document.createElement("li");
+    footer_list.classList.add("footer-list");
+    footer_list.innerHTML = footerText[i];
+
+    footerUl.appendChild(footer_list);
+
+    if(i !== 9) {
+      let division_li = document.createElement("li");
+      division_li.innerHTML = "  |  ";
+
+      footerUl.appendChild(division_li);
+    }
+  }
+
+  let searchDiv = document.createElement("div");
+  searchDiv.classList.add("search-div");
+
+  let search_text = document.createElement("span");
+  search_text.innerHTML = "Search: ";
+
+  let search_input = document.createElement("input");
+  search_input.setAttribute("type", "text");
+
+  searchDiv.appendChild(search_text);
+  searchDiv.appendChild(search_input);
+  footerUl.parentElement.appendChild(searchDiv);
+})()

@@ -9,7 +9,6 @@ body {
 
 header {
   display: flex;
-  align-items: center;
   height: 20px;
   width: 800px;
   background-color: #FF6600;
@@ -37,6 +36,10 @@ header li {
   margin-left: 5px;
   margin-right: 7px;
   font-weight: 800;
+}
+
+.main-title-list:active {
+  color: white;
 }
 
 .login {
@@ -85,11 +88,55 @@ tbody {
   text-decoration: underline;
 }
 
-.main-img, .main-img, .main-title-li, .span_triangle, .td_title, .span_url, .span_user, .span_time, .span_hide, .span_comment {
+.td_contents, .span_user, .span_time, .span_hide, .span_comment {
+  font-size: 12px;
+  color: #828282;
+}
+
+.td_text {
+  color: rgb(130, 130, 130);
+  font-weight: 500;
+}
+
+.td_line {
+  background-color: #ff6600;
+  width: 800px;
+}
+
+footer {
+  width: 800px;
+  padding: 0 2px 2px 2px;
+  background-color: #F6F6EF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+footer ul {
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+footer li {
+  font-size: 11px;
+  list-style: none;
+  margin: 20px 2px;
+}
+
+.search-div {
+  margin: 0 2px 20px 2px;
+}
+
+footer span {
+  color: rgb(130, 130, 130);
+}
+
+.main-img, .main-title, .main-title-list, .span_triangle, .td_title, .span_url, .span_user, .span_time, .span_hide, .span_comment, .footer-list {
   cursor: pointer;
 }
 
-.td_contents, .span_user, .span_time, .span_hide, .span_comment {
-  font-size: 12px;
-  color: rgb(130, 130, 130);
+footer li:visited, .td_title:visited {
+  color: #828282;
 }
