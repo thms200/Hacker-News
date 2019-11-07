@@ -13,7 +13,8 @@
 //   console.log(item); // 123이라는 ID를 가진 스토리에 대한 상세 정보
 // });
 
-const storyID = []; //Top Stories 10개 (고유 item id 10개)
+const storyID = []; //Top Stories(고유 item id)
+const itemNumber = 5; //화면에 나타낼 item 숫자 
 const storyID_Item = []; //item id 별 정보
 
 let content = document.querySelector(".contents"); //item list가 만들어지는 table-tbody tag
@@ -24,7 +25,7 @@ fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
   return response.json();
 })
 .then(function(json) {
-  let data = json.slice(0, 5);
+  let data = json.slice(0, itemNumber);
   storyID.push(data);
   return storyID[0];
 })
@@ -38,7 +39,7 @@ fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
     .then(function(json){
       // storyID_Item.push(json);
       storyID_Item[i] = json; //Top Stories에서 반환받은 배열 내의 ID 순서와 실제로 화면에 그려진 Item List의 순서가 일치
-      if (storyID_Item.length === 5 && checkArr(storyID_Item) === true) {
+      if (storyID_Item.length === itemNumber && checkArr(storyID_Item) === true) {
         makeList(storyID_Item);
         makeMore();
 
@@ -235,11 +236,20 @@ function makeMore () {
 
 //header ul-li, login 만들기
 (function makeHeader () {
-  let headerUl = document.querySelector(".header-ul");
-  let main_title = document.createElement("li");
+  let header = document.querySelector("header");
+
+  let mainContents = document.createElement("div");
+  mainContents.classList.add("main-contents");
+  header.appendChild(mainContents);
+
+  let headerUl = document.createElement("ul");
+  headerUl.classList.add("header-ul");
+  mainContents.appendChild(headerUl);
+
+  let main_title = document.createElement("div");
   main_title.classList.add("main-title");
   main_title.innerHTML = "Hacker News";
-  headerUl.appendChild(main_title);
+  mainContents.insertBefore(main_title, mainContents.firstChild);
 
   let headerText = ["new", "past", "comments", "ask", "show", "jobs", "submit"];
   for(let i = 0; i < headerText.length; i++) {
@@ -260,7 +270,7 @@ function makeMore () {
   let login = document.createElement("div");
   login.classList.add("login");
   login.innerHTML = "login";
-  headerUl.parentElement.appendChild(login);
+  header.appendChild(login);
 })();
 
 //footer만들기
