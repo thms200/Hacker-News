@@ -14,10 +14,12 @@
 // });
 
 const storyID = []; //Top Stories(고유 item id)
-const itemNumber = 5; //화면에 나타낼 item 숫자 
+let itemNumber = 0; //화면에 나타낼 item 숫자 
+const itemNumber_fix = 10; //화면에 구현하고 싶은 item list 갯수
 const storyID_Item = []; //item id 별 정보
 
 let content = document.querySelector(".contents"); //item list가 만들어지는 table-tbody tag
+let mainTable = document.querySelector(".main-table"); //item list가 만들어지는 table tag
 
 // storyID (출차: https://github.com/HackerNews/API)
 fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
@@ -25,6 +27,7 @@ fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
   return response.json();
 })
 .then(function(json) {
+  itemNumber = itemNumber + itemNumber_fix;
   let data = json.slice(0, itemNumber);
   storyID.push(data);
   return storyID[0];
@@ -39,24 +42,33 @@ fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
     .then(function(json){
       // storyID_Item.push(json);
       storyID_Item[i] = json; //Top Stories에서 반환받은 배열 내의 ID 순서와 실제로 화면에 그려진 Item List의 순서가 일치
-      if (storyID_Item.length === itemNumber && checkArr(storyID_Item) === true) {
+      if (storyID_Item.length === itemNumber_fix && checkArr(storyID_Item) === true) {
         makeList(storyID_Item);
         makeMore();
 
-        console.log(storyID_Item); // item 정보
+        console.log("before more click storyID_item", storyID_Item); // item 정보
 
         let td_title = document.querySelectorAll(".td_title");
         for (let i = 0; i < td_title.length; i++) {
           td_title[i].addEventListener("click", makeUrl.bind(null, storyID_Item));
         }
+
+        let more = document.querySelector(".td_text");
+        more.addEventListener("click", clickMore);
       }
     });
   }
 });
 
+let number = 1; //item list numbering
 function makeList (data) {
-  let number = 1; //item list numbering
-  for(let i = 0; i < data.length; i++) {
+  if (content.children.length !== 0) {
+    content.remove();
+  }
+  content = document.createElement("tbody");
+  mainTable.appendChild(content);
+
+  for (let i = 0; i < data.length; i++) {
     //(main) item number + vote + title + url
     let tr_main = document.createElement("tr");
     tr_main.classList.add("tr_main");
@@ -79,11 +91,11 @@ function makeList (data) {
     let url = data[i].url;
     if (url.slice(0,11) === "https://www") {
       url = url.split("https://www.").join(" ").split("/")[0].trim();
-    } else if(url.slice(0,10) === "http://www") {
+    } else if (url.slice(0,10) === "http://www") {
       url = url.split("http://www.").join(" ").split("/")[0].trim();
-    } else if(url.slice(0,8) === "https://") {
+    } else if (url.slice(0,8) === "https://") {
       url = url.split("https://").join(" ").split("/")[0].trim();
-    } else if(url.slice(0,7) === "http://") {
+    } else if (url.slice(0,7) === "http://") {
       url = url.split("http://").join(" ").split("/")[0].trim();
     }
     span_url.innerHTML = "("+ url + ")";
@@ -129,18 +141,18 @@ function makeList (data) {
     let timeTime_hour = itemTime.getHours();
     let timeTime_minute = itemTime.getMinutes();
 
-    if(today_month !== timeTime_month) {
+    if (today_month !== timeTime_month) {
       time = Math.floor(today_month - timeTime_month);
-      time_unit = "months"
+      time_unit = "months";
     } else if (today_date !== timeTime_date) {
       time = Math.floor(today_date - timeTime_date);
-      time_unit = "days"
+      time_unit = "days";
     } else if (today_hour !== timeTime_hour) {
       time = Math.floor(today_hour - timeTime_hour);
-      time_unit = "hours"
+      time_unit = "hours";
     } else if (today_minute !== timeTime_minute) {
       time = Math.floor(today_minute - timeTime_minute);
-      time_unit = "minutes"
+      time_unit = "minutes";
     }
 
     span_time.innerHTML = " " + time + " " + time_unit + " ago";
@@ -155,7 +167,7 @@ function makeList (data) {
     let span_division_second = document.createElement("span"); // "|" 
     span_division_second.innerHTML = " | ";
 
-    let span_comment = document.createElement("span_comment") //item comment 수
+    let span_comment = document.createElement("span_comment"); //item comment 수
     span_comment.classList.add("span_comment");
     span_comment.innerHTML = data[i].descendants + " comments";
 
@@ -195,8 +207,8 @@ function makeUrl (data) {
 //storyID_Item의 값이 모두 채워진 상태로 다음 단계(makeList함수)로 넘어가도록 중간 check함.
 function checkArr (arr) {
   let value = true;
-  for(let i = 0; i < arr.length; i++) {
-    if(arr[i] === undefined) {
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === undefined) {
       value = false;
       break;
     }
@@ -232,7 +244,7 @@ function makeMore () {
   content.appendChild(tr_more);
   content.appendChild(tr_space);
   content.appendChild(tr_line);
-}
+};
 
 //header ul-li, login 만들기
 (function makeHeader () {
@@ -252,14 +264,14 @@ function makeMore () {
   mainContents.insertBefore(main_title, mainContents.firstChild);
 
   let headerText = ["new", "past", "comments", "ask", "show", "jobs", "submit"];
-  for(let i = 0; i < headerText.length; i++) {
+  for (let i = 0; i < headerText.length; i++) {
     let main_title_list = document.createElement("li");
     main_title_list.classList.add("main-title-list");
     main_title_list.innerHTML = headerText[i];
 
     headerUl.appendChild(main_title_list);
 
-    if(i !== 6) {
+    if (i !== 6) {
       let division_li = document.createElement("li");
       division_li.innerHTML = " |";
 
@@ -274,18 +286,18 @@ function makeMore () {
 })();
 
 //footer만들기
-(function makeFooter() {
+(function makeFooter () {
   let footerUl = document.querySelector(".footer-ul");
 
   let footerText = ["Guidelines", "FAQ", "Support", "API", "Security", "Lists", "Bookmarklet", "Legal", "Apply to YC", "Contact"];
-  for(let i = 0 ; i < footerText.length; i++) {
+  for (let i = 0 ; i < footerText.length; i++) {
     let footer_list = document.createElement("li");
     footer_list.classList.add("footer-list");
     footer_list.innerHTML = footerText[i];
 
     footerUl.appendChild(footer_list);
 
-    if(i !== 9) {
+    if (i !== 9) {
       let division_li = document.createElement("li");
       division_li.innerHTML = "  |  ";
 
@@ -305,4 +317,45 @@ function makeMore () {
   searchDiv.appendChild(search_text);
   searchDiv.appendChild(search_input);
   footerUl.parentElement.appendChild(searchDiv);
-})()
+})();
+
+//More 클릭
+function clickMore () {
+  fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty")
+  .then(function(response){
+    return response.json();
+  })
+  .then(function(json) {
+    let data = json.slice(itemNumber, itemNumber + itemNumber_fix);
+    itemNumber = itemNumber + itemNumber_fix;
+    storyID[0] = data;
+    return storyID[0];
+  })
+  .then(function(arr){
+    storyID_Item.length = 0;
+    for (let i = 0; i < arr.length; i++) {
+      let url = "https://hacker-news.firebaseio.com/v0/item/"+arr[i]+".json?print=pretty";
+      fetch(url)
+      .then(function(response){
+        return response.json();
+      })
+      .then(function(json){
+        storyID_Item[i] = json; //Top Stories에서 반환받은 배열 내의 ID 순서와 실제로 화면에 그려진 Item List의 순서가 일치
+        if (storyID_Item.length === itemNumber_fix && checkArr(storyID_Item) === true) {
+          makeList(storyID_Item);
+          makeMore();
+  
+          console.log("after more click storyID_item", storyID_Item); // item 정보
+  
+          let td_title = document.querySelectorAll(".td_title");
+          for (let i = 0; i < td_title.length; i++) {
+            td_title[i].addEventListener("click", makeUrl.bind(null, storyID_Item));
+          }
+  
+          let more = document.querySelector(".td_text");
+          more.addEventListener("click", clickMore);
+        }
+      });
+    }
+  });
+};
