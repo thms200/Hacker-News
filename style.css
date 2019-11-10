@@ -97,7 +97,7 @@ tbody {
   margin-left: 5px;
 }
 
-.span_url:hover, .span_user:hover, .span_user:hover, .span_time:hover, .span_hide:hover, .span_comment:hover {
+.span_url:hover, .span_user:hover, .span_user:hover, .span_time:hover, .span_hide:hover, .span_comment:hover, .span_url:hover, .span_past:hover, .span_web:hover {
   text-decoration: underline;
 }
 
@@ -146,7 +146,7 @@ footer span {
   color: rgb(130, 130, 130);
 }
 
-.main-img, .main-title, .main-title-list, .span_triangle, .td_title, .span_url, .span_user, .span_time, .span_hide, .span_comment, .td_text, .footer-list {
+.main-img, .main-title, .main-title-list, .span_triangle, .td_title, .span_url, .span_user, .span_time, .span_hide, .span_comment, .span_past, .span_web, .td_text, .footer-list {
   cursor: pointer;
 }
 

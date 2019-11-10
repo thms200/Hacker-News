@@ -16,12 +16,14 @@
 const storyID = []; //Top Stories(고유 item id)
 const storyID_Item = []; //item id 별 정보
 let itemNumber = 0; //화면에 나타낼 item 숫자 
-const itemNumber_fix = 10; //화면에 구현하고 싶은 item list 갯수
-let tdListNumber = 1; //item list numbering
+const itemNumber_fix = 5; //화면에 구현하고 싶은 item list 갯수
+let tdListNumber = 1; //section - table tag에 들어가는 숫자 (item list numbering)
+let moreCheckValue = 1; //more 버튼을 클릭할 때 검증하는 숫자
 
 let content = document.querySelector(".contents"); //item list가 만들어지는 table-tbody tag
 let mainTable = document.querySelector(".main-table"); //item list가 만들어지는 table tag
 let selectUrlAddress;
+let checkUrl;
 
 const selectHead = [
   ["maindata", "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"],
@@ -60,8 +62,7 @@ function selectUrl (event) {
 function makeData (value) {
   value.then(function(json) {
     let data;
-    console.log("tdListNumber", tdListNumber)
-    if(tdListNumber === 1) { //more를 클릭하지 않았다면
+    if(moreCheckValue === 1) { //more를 클릭하지 않았다면
       itemNumber = itemNumber + itemNumber_fix;
       data = json.slice(0, itemNumber);
     } else { //more를 클릭했다면
@@ -69,13 +70,10 @@ function makeData (value) {
       itemNumber = itemNumber + itemNumber_fix;
     }
 
-    console.log("itemNumber", itemNumber)
-    console.log("itmNumber", itemNumber_fix)
     let checkstoryID = json.slice(0,10);
-    console.log(checkstoryID);
+    console.log("10ea item list", checkstoryID);
 
     storyID[0] = data;
-    // console.log("here: ", storyID_Item[0]);
     return storyID[0];
   })
   .then(function(arr){
@@ -109,6 +107,8 @@ function makeData (value) {
 
 //Main Page 만들기
 function makeList (data) { //<- (수정필요) 선택한 값이 메인인지, new인지, job인지에 따라 달라져야함
+  checkUrl = selectUrlAddress.slice(38,41);
+  console.log("checkUrl: ",checkUrl)
   if (content.children.length !== 0) {
     content.remove();
   }
@@ -124,20 +124,83 @@ function makeList (data) { //<- (수정필요) 선택한 값이 메인인지, ne
     let tr_main = document.createElement("tr");
     tr_main.classList.add("tr_main");
 
-    let td_number = document.createElement("td"); //item number
-    td_number.classList.add("td_number");
-    td_number.innerHTML = tdListNumber + ".";
-    tdListNumber++;
+    if(checkUrl !== "job") {
+      makeTdNumber(tr_main);
+      makeTdTriangle(tr_main);
+    } else {
+      makeTdSpaceOne(tr_main);
+    }
+    makeTdTitle(tr_main, data[i].title, data[i].url);
 
-    let td_triangle = document.createElement("td"); //item upvote (point 수 올리는 것으로 판단됨;)
-    let span_triangle = document.createElement("span");
-    span_triangle.classList.add("span_triangle");
+    //(sub) item point + user name + hide button + comments 수
+    let tr_sub = document.createElement("tr");
+    tr_sub.classList.add("tr_sub");
+    
+    if(checkUrl !== "job") {
+      makeTdSpaceTwo(tr_sub);
+    } else {
+      makeMoreCheckValue();
+      makeTdSpaceOne(tr_sub);
+    }
 
-    let td_title = document.createElement("td"); //item title
-    td_title.classList.add("td_title");
-    td_title.innerHTML = data[i].title;
+    let td_contents = document.createElement("td"); //item contents (point로 시작)
+    td_contents.classList.add("td_contents");
 
-    let url = data[i].url;
+    if(checkUrl !== "job") {
+      makeTdPointUser(td_contents, data[i].score, data[i].by); 
+      makeTime(td_contents, data[i].time);  
+      makeDivision(td_contents);
+      if(checkUrl === "top" || checkUrl === "new") {
+        makeHide(td_contents);
+        makeDivision(td_contents);
+        if(checkUrl === "new") {
+          makePastWeb(td_contents);
+          makeDivision(td_contents);
+        }
+        makeCommentNumber(td_contents, data[i].descendants);
+      } else  {
+        makeCommentNumber(td_contents, data[i].descendants);
+      }
+    } else {
+      makeTime(td_contents, data[i].time);  
+    }
+
+    tr_sub.appendChild(td_contents);
+
+    //(space) 간격 유지
+    let tr_space = document.createElement("tr");
+    tr_space.classList.add("tr_space");
+
+    content.appendChild(tr_main);
+    content.appendChild(tr_sub);
+    content.appendChild(tr_space);
+  }
+}
+
+function makeTdNumber (element) {
+  let td_number = document.createElement("td"); //item number
+  td_number.classList.add("td_number");
+  td_number.innerHTML = tdListNumber + ".";
+  tdListNumber++;
+  element.appendChild(td_number);
+  makeMoreCheckValue();
+}
+
+function makeTdTriangle (element) {
+  let td_triangle = document.createElement("td"); //item upvote (point 수 올리는 것으로 판단됨;)
+  let span_triangle = document.createElement("span");
+  span_triangle.classList.add("span_triangle");
+  td_triangle.appendChild(span_triangle);
+  element.appendChild(td_triangle);
+}
+
+function makeTdTitle (element, dataTitle, dataUrl) {
+  let td_title = document.createElement("td"); //item title
+  td_title.classList.add("td_title");
+  td_title.innerHTML = dataTitle;
+  element.appendChild(td_title);
+
+  let url = dataUrl;
     if(url !== undefined) {
       let span_url = document.createElement("span"); //item url
       span_url.classList.add("span_url");
@@ -153,96 +216,114 @@ function makeList (data) { //<- (수정필요) 선택한 값이 메인인지, ne
       span_url.innerHTML = "("+ url + ")";
       td_title.appendChild(span_url);
     }
+}
 
-    tr_main.appendChild(td_number);
-    tr_main.appendChild(td_triangle);
-    td_triangle.appendChild(span_triangle);
-    tr_main.appendChild(td_title);
+function makeTdSpaceOne (element) {
+  let td_space = document.createElement("td"); //sub 시작 공백
+  td_space.style.width = "5px";
+  element.appendChild(td_space);
+}
 
-    //(sub) item point + user name + hide button + comments 수
-    let tr_sub = document.createElement("tr");
-    tr_sub.classList.add("tr_sub");
+function makeTdSpaceTwo (element) {
+  let td_space = document.createElement("td"); //sub 시작 공백
+  td_space.colSpan = "2";
+  element.appendChild(td_space);
+}
 
-    let td_space = document.createElement("td"); //sub 시작 공백
-    td_space.colSpan = "2";
+function makeTdPointUser(element, dataPoint, dataUser) {
+  element.innerHTML = dataPoint + " points by "; //itme point 갯수
 
-    let td_contents = document.createElement("td"); //item contents (point로 시작)
-    td_contents.classList.add("td_contents");
-    td_contents.innerHTML = data[i].score + " points by ";
+  let span_user = document.createElement("span"); //item user name;
+  span_user.classList.add("span_user");
+  span_user.innerHTML = dataUser;
 
-    let span_user = document.createElement("span"); //item user name;
-    span_user.classList.add("span_user");
-    span_user.innerHTML = data[i].by;
+  let span_division_zero = document.createElement("span"); // " " 
+  span_division_zero.innerHTML = " ";
 
-    let span_division_zero = document.createElement("span"); // " " 
-    span_division_zero.innerHTML = " ";
+  element.appendChild(span_user);
+  element.appendChild(span_division_zero);
+}
 
-    let span_time = document.createElement("span"); //item time;
-    span_time.classList.add("span_time");
-    let time = 0;
-    let time_unit = "";
+function makeTime (element, dataTime) {
+  let span_time = document.createElement("span"); //item time;
+  span_time.classList.add("span_time");
+  let time = 0;
+  let time_unit = "";
 
-    let today = new Date();
-    let today_month = today.getMonth();
-    let today_date = today.getDate();
-    let today_hour = today.getHours();
-    let today_minute = today.getMinutes();
+  let today = new Date();
+  let today_month = today.getMonth();
+  let today_date = today.getDate();
+  let today_hour = today.getHours();
+  let today_minute = today.getMinutes();
 
-    let itemTime = new Date(data[i].time * 1000);
-    let timeTime_month = itemTime.getMonth();
-    let timeTime_date = itemTime.getDate();
-    let timeTime_hour = itemTime.getHours();
-    let timeTime_minute = itemTime.getMinutes();
+  let itemTime = new Date(dataTime * 1000);
+  let timeTime_month = itemTime.getMonth();
+  let timeTime_date = itemTime.getDate();
+  let timeTime_hour = itemTime.getHours();
+  let timeTime_minute = itemTime.getMinutes();
 
-    if (today_month !== timeTime_month) {
-      time = Math.floor(today_month - timeTime_month);
-      time_unit = "months";
-    } else if (today_date !== timeTime_date) {
-      time = Math.floor(today_date - timeTime_date);
-      time_unit = "days";
-    } else if (today_hour !== timeTime_hour) {
-      time = Math.floor(today_hour - timeTime_hour);
-      time_unit = "hours";
-    } else if (today_minute !== timeTime_minute) {
-      time = Math.floor(today_minute - timeTime_minute);
-      time_unit = "minutes";
-    }
-
-    span_time.innerHTML = " " + time + " " + time_unit + " ago";
-
-    let span_division_one = document.createElement("span"); // "|" 
-    span_division_one.innerHTML = " | ";
-
-    let span_hide = document.createElement("span"); //hide button
-    span_hide.classList.add("span_hide");
-    span_hide.innerHTML = "hide";
-
-    let span_division_second = document.createElement("span"); // "|" 
-    span_division_second.innerHTML = " | ";
-
-    let span_comment = document.createElement("span_comment"); //item comment 수
-    span_comment.classList.add("span_comment");
-    span_comment.innerHTML = data[i].descendants + " comments";
-
-    tr_sub.appendChild(td_space);
-    tr_sub.appendChild(td_contents);
-    td_contents.appendChild(span_user);
-    td_contents.appendChild(span_division_zero);
-    td_contents.appendChild(span_time);
-    td_contents.appendChild(span_division_one);
-    td_contents.appendChild(span_hide);
-    td_contents.appendChild(span_division_second);
-    td_contents.appendChild(span_comment);
-
-    //(space) 간격 유지
-    let tr_space = document.createElement("tr");
-    tr_space.classList.add("tr_space");
-
-    content.appendChild(tr_main);
-    content.appendChild(tr_sub);
-    content.appendChild(tr_space);
+  if (today_month !== timeTime_month) {
+    time = Math.floor(today_month - timeTime_month);
+    time_unit = "months";
+  } else if (today_date !== timeTime_date) {
+    time = Math.floor(today_date - timeTime_date);
+    time_unit = "days";
+  } else if (today_hour !== timeTime_hour) {
+    time = Math.floor(today_hour - timeTime_hour);
+    time_unit = "hours";
+  } else if (today_minute !== timeTime_minute) {
+    time = Math.floor(today_minute - timeTime_minute);
+    time_unit = "minutes";
   }
-};
+
+  span_time.innerHTML = " " + time + " " + time_unit + " ago";
+
+  element.appendChild(span_time);
+}
+
+function makeDivision (element) {
+  let span_division = document.createElement("span"); // "|" 
+  span_division.innerHTML = " | ";
+  element.appendChild(span_division);
+}
+
+function makeCommentNumber (element, dataCommentValue) {
+  let span_comment = document.createElement("span_comment"); //item comment 수
+  span_comment.classList.add("span_comment");
+  if(dataCommentValue === 0) {
+    span_comment.innerHTML = "discuss";
+  } else {
+    span_comment.innerHTML = dataCommentValue + " comments";
+  }
+  element.appendChild(span_comment);
+}
+
+function makeHide (element) {
+  let span_hide = document.createElement("span"); //hide button
+  span_hide.classList.add("span_hide");
+  span_hide.innerHTML = "hide";
+  element.appendChild(span_hide);
+}
+
+function makePastWeb (element) {
+  let span_past = document.createElement("span"); //past button
+  span_past.classList.add("span_past");
+  span_past.innerHTML = "past";
+  element.appendChild(span_past);
+
+  let span_division = document.createElement("span"); // "|" 
+  span_division.innerHTML = " | ";
+  element.appendChild(span_division);
+
+  let span_web = document.createElement("span"); //web button
+  span_web.classList.add("span_web");
+  span_web.innerHTML = "web";
+  element.appendChild(span_web);
+}
+
+function makeMoreCheckValue () {
+  moreCheckValue++;
+}
 
 //title 누르면 해당 url로 이동
 function makeUrl (data) {
@@ -255,7 +336,7 @@ function makeUrl (data) {
       window.open(data[i].url);
     }
   }
-};
+}
 
 //storyID_Item의 값이 모두 채워진 상태로 다음 단계(makeList함수)로 넘어가도록 중간 check함.
 function checkArr (arr) {
@@ -266,7 +347,7 @@ function checkArr (arr) {
       break;
     }
   } return value;
-};
+}
 
 //"More" + 구분선 구현
 function makeMore () {
@@ -274,8 +355,11 @@ function makeMore () {
   let tr_more = document.createElement("tr");
   tr_more.classList.add("tr_more");
 
-  let td_space = document.createElement("td"); //sub 시작 공백
-  td_space.colSpan = "2";
+  if(checkUrl !== "job") {
+    makeTdSpaceTwo(tr_more);
+  } else {
+    makeTdSpaceOne(tr_more);
+  }
 
   let td_text = document.createElement("td"); //'more' text
   td_text.classList.add("td_text");
@@ -291,13 +375,12 @@ function makeMore () {
   let tr_space = document.createElement("tr");
   tr_space.classList.add("tr_space");
   
-  tr_more.appendChild(td_space);
   tr_more.appendChild(td_text);
   tr_line.appendChild(td_line);
   content.appendChild(tr_more);
   content.appendChild(tr_space);
   content.appendChild(tr_line);
-};
+}
 
 //header ul-li, login 만들기
 function makeHeader () {
@@ -336,7 +419,7 @@ function makeHeader () {
   login.classList.add("login");
   login.innerHTML = "login";
   header.appendChild(login);
-};
+}
 
 //footer만들기
 function makeFooter () {
@@ -370,7 +453,7 @@ function makeFooter () {
   searchDiv.appendChild(search_text);
   searchDiv.appendChild(search_input);
   footerUl.parentElement.appendChild(searchDiv);
-};
+}
 
 selectUrl(); //화면 첫 로딩 할 땐 maindata 선택하도록 setting
 makeData(selectHead_value);
@@ -383,6 +466,7 @@ header.addEventListener("click", selectHeadFnc)
 function selectHeadFnc (event) {
   tdListNumber = 1;
   itemNumber = 0;
+  moreCheckValue = 1;
   selectUrl(event);
   makeData(selectHead_value);
 }
