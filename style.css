@@ -76,6 +76,7 @@ tbody {
 .td_number {
   text-align: end;
   color: rgb(130, 130, 130);
+  width: 30px;
 }
 
 .span_triangle{
