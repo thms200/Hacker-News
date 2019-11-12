@@ -92,11 +92,6 @@ function makeData (value) {
   
           console.log("item list data: ",storyID_Item); // item 정보
   
-          let td_title = document.querySelectorAll(".td_title");
-          for (let i = 0; i < td_title.length; i++) {
-            td_title[i].addEventListener("click", makeUrl.bind(null, storyID_Item));
-          }
-  
           let more = document.querySelector(".td_text");
           more.addEventListener("click", makeData.bind(null, selectHead_value));
         }
@@ -113,17 +108,14 @@ function makeList (data) { //
     content.remove();
   }
   content = document.createElement("tbody");
+  content.classList.add("contents");
   mainTable.appendChild(content);
 
   makeTrSpace(content);
 
   if(checkUrl === "sho" || checkUrl === "job") {
-    // makeShowTrInfo(content);
     makeShowJobTrInfo(content, checkUrl);
-  } 
-  // else if (checkUrl === "job") {
-  //   makeJobTrInfo(content);
-  // }
+  }
 
   for (let i = 0; i < data.length; i++) {
     //(main) item number + vote + title + url
@@ -199,7 +191,11 @@ function makeTdTriangle (element) {
 function makeTdTitle (element, dataTitle, dataUrl) {
   let td_title = document.createElement("td"); //item title
   td_title.classList.add("td_title");
-  td_title.innerHTML = dataTitle;
+  let td_title_a = document.createElement("a");
+  td_title_a.classList.add("td_title_a");
+  td_title_a.innerHTML = dataTitle;
+  td_title_a.setAttribute("href", dataUrl);
+  td_title.appendChild(td_title_a);
   element.appendChild(td_title);
 
   let url = dataUrl;
@@ -378,7 +374,7 @@ function makeShowJobTrInfo (element, value) {
     trInfo_td_a_three.setAttribute("href", "https://www.keyvalues.com/yc-funded-companies");
     trInfo_td_span_three.innerHTML = ".";
   }
-  
+
   trInfo.appendChild(trInfo_td_space);
   trInfo.appendChild(trInfo_td);
   trInfo_td.appendChild(trInfo_td_a_one);
@@ -387,19 +383,6 @@ function makeShowJobTrInfo (element, value) {
   trInfo_td.appendChild(trInfo_td_span_two);
   trInfo_td.appendChild(trInfo_td_a_three);
   trInfo_td.appendChild(trInfo_td_span_three);
-}
-
-//title 누르면 해당 url로 이동
-function makeUrl (data) {
-  let click_title = event.target.innerText;
-  click_title = click_title.split("(")[0];
-  for (let i = 0 ; i < data.length; i++) {
-    let check_title = data[i].title;
-
-    if (check_title === click_title) {
-      window.open(data[i].url);
-    }
-  }
 }
 
 //storyID_Item의 값이 모두 채워진 상태로 다음 단계(makeList함수)로 넘어가도록 중간 check함.
@@ -490,11 +473,26 @@ function makeFooter () {
   let footerUl = document.querySelector(".footer-ul");
 
   let footerText = ["Guidelines", "FAQ", "Support", "API", "Security", "Lists", "Bookmarklet", "Legal", "Apply to YC", "Contact"];
+  let footerTextUrl = [
+    "https://news.ycombinator.com/newsguidelines.html",
+    "https://news.ycombinator.com/newsfaq.html",
+    "mailto:thms0504@gmail.com",
+    "https://github.com/HackerNews/API",
+    "https://news.ycombinator.com/security.html",
+    "https://news.ycombinator.com/lists",
+    "https://news.ycombinator.com/bookmarklet.html",
+    "https://www.ycombinator.com/legal/",
+    "https://www.ycombinator.com/apply/",
+    "mailto:thms0504@gmail.com"
+  ];
+
   for (let i = 0 ; i < footerText.length; i++) {
     let footer_list = document.createElement("li");
-    footer_list.classList.add("footer-list");
-    footer_list.innerHTML = footerText[i];
+    let footer_list_a = document.createElement("a");
+    footer_list_a.innerHTML = footerText[i];
+    footer_list_a.setAttribute("href", footerTextUrl[i]);
 
+    footer_list.appendChild(footer_list_a);
     footerUl.appendChild(footer_list);
 
     if (i !== 9) {
@@ -534,3 +532,19 @@ function selectHeadFnc (event) {
   selectUrl(event);
   makeData(selectHead_value);
 }
+
+//선택된 header 메뉴 글자색 하얀색으로!
+let headerList = document.querySelectorAll(".main-title-list");
+
+Array.prototype.forEach.call(headerList, function(element){
+  element.addEventListener("click", function() {
+    event.target.classList.add("header-active");
+
+    let clickValue = event.target.innerText;
+    Array.prototype.forEach.call(headerList, function (element){
+      if(element.innerText !== clickValue) {
+        element.classList.remove("header-active");
+      }
+    })
+  })
+})
