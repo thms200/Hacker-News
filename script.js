@@ -106,7 +106,7 @@ function makeData (value) {
 }
 
 //Main Page 만들기
-function makeList (data) { //<- (수정필요) 선택한 값이 메인인지, new인지, job인지에 따라 달라져야함
+function makeList (data) { //
   checkUrl = selectUrlAddress.slice(38,41);
   console.log("checkUrl: ",checkUrl)
   if (content.children.length !== 0) {
@@ -115,14 +115,21 @@ function makeList (data) { //<- (수정필요) 선택한 값이 메인인지, ne
   content = document.createElement("tbody");
   mainTable.appendChild(content);
 
-  let trSpace = document.createElement("tr");
-  trSpace.classList.add("tr_space");
-  content.appendChild(trSpace);
+  makeTrSpace(content);
+
+  if(checkUrl === "sho" || checkUrl === "job") {
+    // makeShowTrInfo(content);
+    makeShowJobTrInfo(content, checkUrl);
+  } 
+  // else if (checkUrl === "job") {
+  //   makeJobTrInfo(content);
+  // }
 
   for (let i = 0; i < data.length; i++) {
     //(main) item number + vote + title + url
     let tr_main = document.createElement("tr");
     tr_main.classList.add("tr_main");
+    content.appendChild(tr_main);
 
     if(checkUrl !== "job") {
       makeTdNumber(tr_main);
@@ -131,10 +138,11 @@ function makeList (data) { //<- (수정필요) 선택한 값이 메인인지, ne
       makeTdSpaceOne(tr_main);
     }
     makeTdTitle(tr_main, data[i].title, data[i].url);
-
+    
     //(sub) item point + user name + hide button + comments 수
     let tr_sub = document.createElement("tr");
     tr_sub.classList.add("tr_sub");
+    content.appendChild(tr_sub);
     
     if(checkUrl !== "job") {
       makeTdSpaceTwo(tr_sub);
@@ -145,6 +153,7 @@ function makeList (data) { //<- (수정필요) 선택한 값이 메인인지, ne
 
     let td_contents = document.createElement("td"); //item contents (point로 시작)
     td_contents.classList.add("td_contents");
+    tr_sub.appendChild(td_contents);
 
     if(checkUrl !== "job") {
       makeTdPointUser(td_contents, data[i].score, data[i].by); 
@@ -165,15 +174,8 @@ function makeList (data) { //<- (수정필요) 선택한 값이 메인인지, ne
       makeTime(td_contents, data[i].time);  
     }
 
-    tr_sub.appendChild(td_contents);
-
     //(space) 간격 유지
-    let tr_space = document.createElement("tr");
-    tr_space.classList.add("tr_space");
-
-    content.appendChild(tr_main);
-    content.appendChild(tr_sub);
-    content.appendChild(tr_space);
+    makeTrSpace(content);
   }
 }
 
@@ -247,20 +249,23 @@ function makeTdPointUser(element, dataPoint, dataUser) {
 function makeTime (element, dataTime) {
   let span_time = document.createElement("span"); //item time;
   span_time.classList.add("span_time");
-  let time = 0;
-  let time_unit = "";
-
+  
   let today = new Date();
   let today_month = today.getMonth();
   let today_date = today.getDate();
   let today_hour = today.getHours();
   let today_minute = today.getMinutes();
-
+  
   let itemTime = new Date(dataTime * 1000);
   let timeTime_month = itemTime.getMonth();
   let timeTime_date = itemTime.getDate();
   let timeTime_hour = itemTime.getHours();
   let timeTime_minute = itemTime.getMinutes();
+  
+  let timeDiff = today - itemTime;
+  let changeTimeDiff = timeDiff / (1000*60*60); //일 차이
+  let time = Math.floor(changeTimeDiff);
+  let time_unit = "minutes";
 
   if (today_month !== timeTime_month) {
     time = Math.floor(today_month - timeTime_month);
@@ -268,12 +273,13 @@ function makeTime (element, dataTime) {
   } else if (today_date !== timeTime_date) {
     time = Math.floor(today_date - timeTime_date);
     time_unit = "days";
-  } else if (today_hour !== timeTime_hour) {
-    time = Math.floor(today_hour - timeTime_hour);
-    time_unit = "hours";
+  } else if (today_hour !== timeTime_hour && time !== 0) {
+    time_unit = "hours"
   } else if (today_minute !== timeTime_minute) {
-    time = Math.floor(today_minute - timeTime_minute);
-    time_unit = "minutes";
+    changeTimeDiff = timeDiff / (1000*60);
+    time = Math.round(changeTimeDiff);
+  } else {
+    time = 0;
   }
 
   span_time.innerHTML = " " + time + " " + time_unit + " ago";
@@ -323,6 +329,64 @@ function makePastWeb (element) {
 
 function makeMoreCheckValue () {
   moreCheckValue++;
+}
+
+function makeTrSpace (element) {
+  let tr_space = document.createElement("tr");
+  tr_space.classList.add("tr_space");
+  element.appendChild(tr_space);
+}
+
+//"show/Job" 선택했을 떄 윗 부분 화면에 나오는 코멘트
+function makeShowJobTrInfo (element, value) {
+  let trInfo = document.createElement("tr");
+  trInfo.classList.add("tr_info");
+  element.insertBefore(trInfo, element.firstChild.nextSibling);
+
+  trInfo.previousSibling.style.height = "8px";
+  makeTrSpace(content);
+  trInfo.nextSibling.style.height = "8px";
+
+  let trInfo_td = document.createElement("td");
+  let trInfo_td_space = document.createElement("td");
+  let trInfo_td_a_one = document.createElement("a");
+  let trInfo_td_span_one = document.createElement("span");
+  let trInfo_td_a_two = document.createElement("a");
+  let trInfo_td_span_two = document.createElement("span");
+  let trInfo_td_a_three = document.createElement("a");
+  let trInfo_td_span_three = document.createElement("span");
+  
+  if(value === 'sho') {
+    trInfo_td_space.colSpan = "2";
+    trInfo_td.innerHTML = "Please read the ";
+    trInfo_td_a_one.innerHTML = "rules";
+    trInfo_td_a_one.setAttribute("href", "https://news.ycombinator.com/showhn.html");
+    trInfo_td_span_one.innerHTML = ". You can also browse the ";
+    trInfo_td_a_two.innerHTML = "newest";
+    trInfo_td_a_two.setAttribute("href", "https://news.ycombinator.com/shownew");
+    trInfo_td_span_two.innerHTML = " Show HNs.";
+  } else if (value === "job") {
+    trInfo_td_space.style.width = "5px";
+    trInfo_td.innerHTML = "These are jobs at YC startups. See more at ";
+    trInfo_td_a_one.innerHTML = "Work at a Startup";
+    trInfo_td_a_one.setAttribute("href", "https://www.workatastartup.com/");
+    trInfo_td_span_one.innerHTML = ", ";
+    trInfo_td_a_two.innerHTML = "Triplebyte";
+    trInfo_td_a_two.setAttribute("href", "https://triplebyte.com/?ref=yc_jobs");
+    trInfo_td_span_two.innerHTML = ", ";
+    trInfo_td_a_three.innerHTML = "Key Value";
+    trInfo_td_a_three.setAttribute("href", "https://www.keyvalues.com/yc-funded-companies");
+    trInfo_td_span_three.innerHTML = ".";
+  }
+  
+  trInfo.appendChild(trInfo_td_space);
+  trInfo.appendChild(trInfo_td);
+  trInfo_td.appendChild(trInfo_td_a_one);
+  trInfo_td.appendChild(trInfo_td_span_one);
+  trInfo_td.appendChild(trInfo_td_a_two);
+  trInfo_td.appendChild(trInfo_td_span_two);
+  trInfo_td.appendChild(trInfo_td_a_three);
+  trInfo_td.appendChild(trInfo_td_span_three);
 }
 
 //title 누르면 해당 url로 이동

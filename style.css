@@ -8,6 +8,10 @@ body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
+a {
+  color: inherit;
+}
+
 header {
   display: flex;
   height: 23px;
@@ -67,6 +71,10 @@ tbody {
 
 .contents tr {
   vertical-align: baseline;
+}
+
+.tr_info {
+  color: #828282;
 }
 
 .tr_space {
