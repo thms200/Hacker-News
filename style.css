@@ -82,6 +82,10 @@ tbody {
   color: #828282;
 }
 
+.tr_info a {
+  text-decoration: underline;
+}
+
 .tr_space {
   height: 3px;
 }

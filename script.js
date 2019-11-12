@@ -26,7 +26,7 @@ let selectUrlAddress;
 let checkUrl;
 
 const selectHead = [
-  ["maindata", "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"],
+  ["Hacker Newsdata", "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"],
   ["newdata", "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty"],
   ["pastdata", "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"], //past는 top story로 대체
   ["commentsdata", "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"], //comments는 top story로 대체
@@ -42,12 +42,16 @@ function selectUrl (event) {
   if(selectHead_value === undefined) {
     selectUrlAddress = selectHead[0][1];
   } else {
+    if(event.target.className === "main-img") {
+      selectUrlAddress = selectHead[0][1];
+    }
     let value = event.target.innerHTML + "data";
     for (let i = 0; i < selectHead.length; i++) {
       if (selectHead[i][0] === value) {
         selectUrlAddress = selectHead[i][1];
       }
     }
+    removeHeaderActive(event.target.className);
   }
   
   console.log("select URL: ", selectUrlAddress);
@@ -522,20 +526,24 @@ makeData(selectHead_value);
 makeHeader();
 makeFooter();
 
-let header = document.querySelector(".header-ul");
+let header = document.querySelector("header"); //header tag
+let headerList = document.querySelectorAll(".main-title-list"); //header tag 중 메뉴(new, past, job 등)
+
 header.addEventListener("click", selectHeadFnc)
 
+//header 메뉴를 누르면, 그에 맞는 정보로 화면 재구성
 function selectHeadFnc (event) {
-  tdListNumber = 1;
-  itemNumber = 0;
-  moreCheckValue = 1;
-  selectUrl(event);
-  makeData(selectHead_value);
+  let check = ["main-img", "main-title", "main-title-list header-active"];
+  if(check.includes(event.target.className)) {
+    tdListNumber = 1;
+    itemNumber = 0;
+    moreCheckValue = 1;
+    selectUrl(event);
+    makeData(selectHead_value);
+  }
 }
 
 //선택된 header 메뉴 글자색 하얀색으로!
-let headerList = document.querySelectorAll(".main-title-list");
-
 Array.prototype.forEach.call(headerList, function(element){
   element.addEventListener("click", function() {
     event.target.classList.add("header-active");
@@ -548,3 +556,13 @@ Array.prototype.forEach.call(headerList, function(element){
     })
   })
 })
+
+//header-active class remove
+function removeHeaderActive (value) {
+  console.log(value)
+  if(value === "main-title" || value === "main-img") {
+    Array.prototype.forEach.call(headerList, function (element){
+      element.classList.remove("header-active");
+    })
+  }
+}
