@@ -21,7 +21,6 @@ let tdListNumber = 1; //section - table tag에 들어가는 숫자 (item list nu
 let moreCheckValue = 1; //more 버튼을 클릭할 때 검증하는 숫자
 
 let content = document.querySelector(".contents"); //item list가 만들어지는 table-tbody tag
-let mainTable = document.querySelector(".main-table"); //item list가 만들어지는 table tag
 let selectUrlAddress;
 let checkUrl;
 
@@ -51,7 +50,6 @@ function selectUrl (event) {
         selectUrlAddress = selectHead[i][1];
       }
     }
-    removeHeaderActive(event.target.className);
   }
   
   console.log("select URL: ", selectUrlAddress);
@@ -104,334 +102,7 @@ function makeData (value) {
   });
 }
 
-//Main Page 만들기
-function makeList (data) { //
-  checkUrl = selectUrlAddress.slice(38,41);
-  console.log("checkUrl: ",checkUrl)
-  if (content.children.length !== 0) {
-    content.remove();
-  }
-  content = document.createElement("tbody");
-  content.classList.add("contents");
-  mainTable.appendChild(content);
-
-  makeTrSpace(content);
-
-  if(checkUrl === "sho" || checkUrl === "job") {
-    makeShowJobTrInfo(content, checkUrl);
-  }
-
-  for (let i = 0; i < data.length; i++) {
-    //(main) item number + vote + title + url
-    let tr_main = document.createElement("tr");
-    tr_main.classList.add("tr_main");
-    content.appendChild(tr_main);
-
-    if(checkUrl !== "job") {
-      makeTdNumber(tr_main);
-      makeTdTriangle(tr_main);
-    } else {
-      makeTdSpaceOne(tr_main);
-    }
-    makeTdTitle(tr_main, data[i].title, data[i].url);
-    
-    //(sub) item point + user name + hide button + comments 수
-    let tr_sub = document.createElement("tr");
-    tr_sub.classList.add("tr_sub");
-    content.appendChild(tr_sub);
-    
-    if(checkUrl !== "job") {
-      makeTdSpaceTwo(tr_sub);
-    } else {
-      makeMoreCheckValue();
-      makeTdSpaceOne(tr_sub);
-    }
-
-    let td_contents = document.createElement("td"); //item contents (point로 시작)
-    td_contents.classList.add("td_contents");
-    tr_sub.appendChild(td_contents);
-
-    if(checkUrl !== "job") {
-      makeTdPointUser(td_contents, data[i].score, data[i].by); 
-      makeTime(td_contents, data[i].time);  
-      makeDivision(td_contents);
-      if(checkUrl === "top" || checkUrl === "new") {
-        makeHide(td_contents);
-        makeDivision(td_contents);
-        if(checkUrl === "new") {
-          makePastWeb(td_contents);
-          makeDivision(td_contents);
-        }
-        makeCommentNumber(td_contents, data[i].descendants);
-      } else  {
-        makeCommentNumber(td_contents, data[i].descendants);
-      }
-    } else {
-      makeTime(td_contents, data[i].time);  
-    }
-
-    //(space) 간격 유지
-    makeTrSpace(content);
-  }
-}
-
-function makeTdNumber (element) {
-  let td_number = document.createElement("td"); //item number
-  td_number.classList.add("td_number");
-  td_number.innerHTML = tdListNumber + ".";
-  tdListNumber++;
-  element.appendChild(td_number);
-  makeMoreCheckValue();
-}
-
-function makeTdTriangle (element) {
-  let td_triangle = document.createElement("td"); //item upvote (point 수 올리는 것으로 판단됨;)
-  let span_triangle = document.createElement("span");
-  span_triangle.classList.add("span_triangle");
-  td_triangle.appendChild(span_triangle);
-  element.appendChild(td_triangle);
-}
-
-function makeTdTitle (element, dataTitle, dataUrl) {
-  let td_title = document.createElement("td"); //item title
-  td_title.classList.add("td_title");
-  let td_title_a = document.createElement("a");
-  td_title_a.classList.add("td_title_a");
-  td_title_a.innerHTML = dataTitle;
-  td_title_a.setAttribute("href", dataUrl);
-  td_title.appendChild(td_title_a);
-  element.appendChild(td_title);
-
-  let url = dataUrl;
-    if(url !== undefined) {
-      let span_url = document.createElement("span"); //item url
-      span_url.classList.add("span_url");
-      if (url.slice(0,11) === "https://www") {
-        url = url.split("https://www.").join(" ").split("/")[0].trim();
-      } else if (url.slice(0,10) === "http://www") {
-        url = url.split("http://www.").join(" ").split("/")[0].trim();
-      } else if (url.slice(0,8) === "https://") {
-        url = url.split("https://").join(" ").split("/")[0].trim();
-      } else if (url.slice(0,7) === "http://") {
-        url = url.split("http://").join(" ").split("/")[0].trim();
-      }
-      span_url.innerHTML = "("+ url + ")";
-      td_title.appendChild(span_url);
-    }
-}
-
-function makeTdSpaceOne (element) {
-  let td_space = document.createElement("td"); //sub 시작 공백
-  td_space.style.width = "5px";
-  element.appendChild(td_space);
-}
-
-function makeTdSpaceTwo (element) {
-  let td_space = document.createElement("td"); //sub 시작 공백
-  td_space.colSpan = "2";
-  element.appendChild(td_space);
-}
-
-function makeTdPointUser(element, dataPoint, dataUser) {
-  element.innerHTML = dataPoint + " points by "; //itme point 갯수
-
-  let span_user = document.createElement("span"); //item user name;
-  span_user.classList.add("span_user");
-  span_user.innerHTML = dataUser;
-
-  let span_division_zero = document.createElement("span"); // " " 
-  span_division_zero.innerHTML = " ";
-
-  element.appendChild(span_user);
-  element.appendChild(span_division_zero);
-}
-
-function makeTime (element, dataTime) {
-  let span_time = document.createElement("span"); //item time;
-  span_time.classList.add("span_time");
-  
-  let today = new Date();
-  let today_month = today.getMonth();
-  let today_date = today.getDate();
-  let today_hour = today.getHours();
-  let today_minute = today.getMinutes();
-  
-  let itemTime = new Date(dataTime * 1000);
-  let timeTime_month = itemTime.getMonth();
-  let timeTime_date = itemTime.getDate();
-  let timeTime_hour = itemTime.getHours();
-  let timeTime_minute = itemTime.getMinutes();
-  
-  let timeDiff = today - itemTime;
-  let changeTimeDiff = timeDiff / (1000*60*60); //일 차이
-  let time = Math.floor(changeTimeDiff);
-  let time_unit = "minutes";
-
-  if (today_month !== timeTime_month) {
-    time = Math.floor(today_month - timeTime_month);
-    time_unit = "months";
-  } else if (today_date !== timeTime_date) {
-    time = Math.floor(today_date - timeTime_date);
-    time_unit = "days";
-  } else if (today_hour !== timeTime_hour && time !== 0) {
-    time_unit = "hours"
-  } else if (today_minute !== timeTime_minute) {
-    changeTimeDiff = timeDiff / (1000*60);
-    time = Math.round(changeTimeDiff);
-  } else {
-    time = 0;
-  }
-
-  span_time.innerHTML = " " + time + " " + time_unit + " ago";
-
-  element.appendChild(span_time);
-}
-
-function makeDivision (element) {
-  let span_division = document.createElement("span"); // "|" 
-  span_division.innerHTML = " | ";
-  element.appendChild(span_division);
-}
-
-function makeCommentNumber (element, dataCommentValue) {
-  let span_comment = document.createElement("span_comment"); //item comment 수
-  span_comment.classList.add("span_comment");
-  if(dataCommentValue === 0) {
-    span_comment.innerHTML = "discuss";
-  } else {
-    span_comment.innerHTML = dataCommentValue + " comments";
-  }
-  element.appendChild(span_comment);
-}
-
-function makeHide (element) {
-  let span_hide = document.createElement("span"); //hide button
-  span_hide.classList.add("span_hide");
-  span_hide.innerHTML = "hide";
-  element.appendChild(span_hide);
-}
-
-function makePastWeb (element) {
-  let span_past = document.createElement("span"); //past button
-  span_past.classList.add("span_past");
-  span_past.innerHTML = "past";
-  element.appendChild(span_past);
-
-  let span_division = document.createElement("span"); // "|" 
-  span_division.innerHTML = " | ";
-  element.appendChild(span_division);
-
-  let span_web = document.createElement("span"); //web button
-  span_web.classList.add("span_web");
-  span_web.innerHTML = "web";
-  element.appendChild(span_web);
-}
-
-function makeMoreCheckValue () {
-  moreCheckValue++;
-}
-
-function makeTrSpace (element) {
-  let tr_space = document.createElement("tr");
-  tr_space.classList.add("tr_space");
-  element.appendChild(tr_space);
-}
-
-//"show/Job" 선택했을 떄 윗 부분 화면에 나오는 코멘트
-function makeShowJobTrInfo (element, value) {
-  let trInfo = document.createElement("tr");
-  trInfo.classList.add("tr_info");
-  element.insertBefore(trInfo, element.firstChild.nextSibling);
-
-  trInfo.previousSibling.style.height = "8px";
-  makeTrSpace(content);
-  trInfo.nextSibling.style.height = "8px";
-
-  let trInfo_td = document.createElement("td");
-  let trInfo_td_space = document.createElement("td");
-  let trInfo_td_a_one = document.createElement("a");
-  let trInfo_td_span_one = document.createElement("span");
-  let trInfo_td_a_two = document.createElement("a");
-  let trInfo_td_span_two = document.createElement("span");
-  let trInfo_td_a_three = document.createElement("a");
-  let trInfo_td_span_three = document.createElement("span");
-  
-  if(value === 'sho') {
-    trInfo_td_space.colSpan = "2";
-    trInfo_td.innerHTML = "Please read the ";
-    trInfo_td_a_one.innerHTML = "rules";
-    trInfo_td_a_one.setAttribute("href", "https://news.ycombinator.com/showhn.html");
-    trInfo_td_span_one.innerHTML = ". You can also browse the ";
-    trInfo_td_a_two.innerHTML = "newest";
-    trInfo_td_a_two.setAttribute("href", "https://news.ycombinator.com/shownew");
-    trInfo_td_span_two.innerHTML = " Show HNs.";
-  } else if (value === "job") {
-    trInfo_td_space.style.width = "5px";
-    trInfo_td.innerHTML = "These are jobs at YC startups. See more at ";
-    trInfo_td_a_one.innerHTML = "Work at a Startup";
-    trInfo_td_a_one.setAttribute("href", "https://www.workatastartup.com/");
-    trInfo_td_span_one.innerHTML = ", ";
-    trInfo_td_a_two.innerHTML = "Triplebyte";
-    trInfo_td_a_two.setAttribute("href", "https://triplebyte.com/?ref=yc_jobs");
-    trInfo_td_span_two.innerHTML = ", ";
-    trInfo_td_a_three.innerHTML = "Key Value";
-    trInfo_td_a_three.setAttribute("href", "https://www.keyvalues.com/yc-funded-companies");
-    trInfo_td_span_three.innerHTML = ".";
-  }
-
-  trInfo.appendChild(trInfo_td_space);
-  trInfo.appendChild(trInfo_td);
-  trInfo_td.appendChild(trInfo_td_a_one);
-  trInfo_td.appendChild(trInfo_td_span_one);
-  trInfo_td.appendChild(trInfo_td_a_two);
-  trInfo_td.appendChild(trInfo_td_span_two);
-  trInfo_td.appendChild(trInfo_td_a_three);
-  trInfo_td.appendChild(trInfo_td_span_three);
-}
-
-//storyID_Item의 값이 모두 채워진 상태로 다음 단계(makeList함수)로 넘어가도록 중간 check함.
-function checkArr (arr) {
-  let value = true;
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] === undefined) {
-      value = false;
-      break;
-    }
-  } return value;
-}
-
-//"More" + 구분선 구현
-function makeMore () {
-  //More 작성
-  let tr_more = document.createElement("tr");
-  tr_more.classList.add("tr_more");
-
-  if(checkUrl !== "job") {
-    makeTdSpaceTwo(tr_more);
-  } else {
-    makeTdSpaceOne(tr_more);
-  }
-
-  let td_text = document.createElement("td"); //'more' text
-  td_text.classList.add("td_text");
-  td_text.innerHTML = "More";
-  
-  //구분선(주황색)
-  let tr_line = document.createElement("tr");
-  let td_line = document.createElement("td");
-  td_line.colSpan = "3";
-  td_line.classList.add("td_line");
-
-  //space 주기
-  let tr_space = document.createElement("tr");
-  tr_space.classList.add("tr_space");
-  
-  tr_more.appendChild(td_text);
-  tr_line.appendChild(td_line);
-  content.appendChild(tr_more);
-  content.appendChild(tr_space);
-  content.appendChild(tr_line);
-}
+let selectHead_name = null;
 
 //header ul-li, login 만들기
 function makeHeader () {
@@ -467,9 +138,16 @@ function makeHeader () {
   }
 
   let login = document.createElement("div");
-  login.classList.add("login");
-  login.innerHTML = "login";
+  login.classList.add("loginButton");
+
+  let loginDiv = document.createElement("div");
+  loginDiv.classList.add("loginDiv");
+  loginDiv.innerHTML = "login";
+  loginDiv.addEventListener("click", makeLoginLogout)
+  login.appendChild(loginDiv);
   header.appendChild(login);
+
+  makeHeaderFnc(header);
 }
 
 //footer만들기
@@ -526,43 +204,133 @@ makeData(selectHead_value);
 makeHeader();
 makeFooter();
 
-let header = document.querySelector("header"); //header tag
-let headerList = document.querySelectorAll(".main-title-list"); //header tag 중 메뉴(new, past, job 등)
+let body = document.querySelector("body");
+const checkUser = []; //입력한 아이디만 체크 (중복 가입 방지)
+const userData = []; //입력한 아이디, 비번 담아두기
 
-header.addEventListener("click", selectHeadFnc)
+// login button click하면 화면 구성
+function makeLoginLogout () {
+  if(event.target.innerText === "login") {
+    deleteHTML();
+    body.style.display = "block";
+  
+    let wrapper = document.createElement("div");
+    wrapper.classList.add("wrapper");
+    body.appendChild(wrapper);
+  
+    makeLoginPart(wrapper, "Login", "username : ", "password : ", "login");
+    let comment = document.createElement("a");
+    comment.classList.add("login_comment");
+    comment.innerText = "Forgot your password?";
+    wrapper.appendChild(comment);
+    makeLoginPart(wrapper, "Create Account", "username : ", "password : ", "create account");
+  } else {
+    deleteHTML(); //기존 화면 지우기
+    makeIndex(); //기존 index.html 화면 만들기
 
-//header 메뉴를 누르면, 그에 맞는 정보로 화면 재구성
-function selectHeadFnc (event) {
-  let check = ["main-img", "main-title", "main-title-list header-active"];
-  if(check.includes(event.target.className)) {
+    //아이템 list 화면 다시 불러오기
     tdListNumber = 1;
     itemNumber = 0;
     moreCheckValue = 1;
-    selectUrl(event);
     makeData(selectHead_value);
+    makeHeader();
+    makeFooter();
+    makeHeaderActive(selectHead_name);
+  }
+  if(userData.length !== 0) {
+    for(let i = 0; i < userData.length; i++) {
+      userData[i][2] = false;
+    }
   }
 }
 
-//선택된 header 메뉴 글자색 하얀색으로!
-Array.prototype.forEach.call(headerList, function(element){
-  element.addEventListener("click", function() {
-    event.target.classList.add("header-active");
+//login or Create Account click하면 makeUser실행 -> login이 아니면 userData/checkUser 생성 -> login이면 doLogin함수 실행 
+function makeUser () {
+  let loginUser = document.getElementById('login_user');
+  let loginPassword = document.getElementById('login_password');
+  let createUser = document.getElementById('create_user');
+  let createPassword = document.getElementById('create_password');
 
-    let clickValue = event.target.innerText;
-    Array.prototype.forEach.call(headerList, function (element){
-      if(element.innerText !== clickValue) {
-        element.classList.remove("header-active");
-      }
-    })
-  })
-})
+  if(event.target.value !== "login") {
+    for(let i = 0; i < checkUser.length; i++) {
+      if(checkUser[i] === createUser.value) {
+        alert("You can not use this ID.");
+      } 
+    }
+    if(!checkUser.includes(createUser.value)) {
+      let userArr = [];
+      userArr.push(createUser.value);
+      userArr.push(createPassword.value);
+      userArr.push(false);
+      userData.push(userArr);
+      checkUser.push(createUser.value);
+      alert("Welcome! :)");
+    }
+  } else {
+    doLogin(loginUser.value, loginPassword.value);
+  }
 
-//header-active class remove
-function removeHeaderActive (value) {
-  console.log(value)
-  if(value === "main-title" || value === "main-img") {
-    Array.prototype.forEach.call(headerList, function (element){
-      element.classList.remove("header-active");
-    })
+  loginUser.value = '';
+  loginPassword.value = '';
+  createUser.value = '';
+  createPassword.value = '';
+  console.log("at makeUser",userData);
+}
+
+// login일 경우, 아이디가 없으면 가입하라고 알람, 아이디/비번을 잘못 누르면 재입력 알람, 아이디/비번 맞으면 기존 화면 나옴
+function doLogin (user, password) {
+  for(let i = 0; i < userData.length; i++) {
+    if(user === userData[i][0] && password === userData[i][1]) {
+      deleteHTML(); //기존 화면 지우기
+      makeIndex(); //기존 index.html 화면 만들기
+
+      //아이템 list 화면 다시 불러오기
+      tdListNumber = 1;
+      itemNumber = 0;
+      moreCheckValue = 1;
+      makeData(selectHead_value);
+      makeHeader();
+      makeFooter();
+      makeHeaderActive(selectHead_name);
+
+      userData[i][2] = true; //Login한 user 표시;
+      makeLoginUser();
+    } 
+  } 
+
+  if(!checkUser.includes(user)) {
+    alert("There is no username. Please join us.");
+  } else if (checkUser.includes(user)) {
+    for(let i = 0; i < userData.length; i++) {
+      if(user === userData[i][0] && password !== userData[i][1]) {
+        alert("Please enter again");
+      } 
+    }
+  }
+}
+
+function makeLoginUser () {
+  let loginButton = document.querySelector(".loginButton");
+  
+  for(let i = 0; i < userData.length; i++) {
+    if(userData[i][2] === true) {
+      loginButton.innerHTML = "";
+
+      let userDiv = document.createElement("div");
+      userDiv.classList.add("userDiv");
+      userDiv.innerHTML = userData[i][0]
+      loginButton.appendChild(userDiv);
+
+      let divisionDiv = document.createElement("div");
+      divisionDiv.classList.add("divisionDiv");
+      divisionDiv.innerHTML = " ( 1 ) | "; //"(1)"은 user의 Karma. 임의로 (1) 반영함 (HN API에서 정보 받을 수 있음)
+      loginButton.appendChild(divisionDiv);
+
+      let loginDiv = document.createElement("div");
+      loginDiv.classList.add("loginDiv");
+      loginDiv.innerHTML = "logout";
+      loginDiv.addEventListener("click", makeLoginLogout)
+      loginButton.appendChild(loginDiv);
+    }
   }
 }
