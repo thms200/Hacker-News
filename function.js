@@ -342,7 +342,7 @@ function makeHeaderFnc (element) {
   //header 메뉴를 누르면, 그에 맞는 정보로 화면 재구성
   function selectHeadFnc (event) {
     let check = ["main-img", "main-title", "main-title-list header-active"];
-    if(check.includes(event.target.className)) {
+    if(check.includes(event.target.className) && event.target.innerText !== "submit") {
       tdListNumber = 1;
       itemNumber = 0;
       moreCheckValue = 1;
@@ -479,4 +479,72 @@ function makeIndex () {
   header = document.querySelector("header"); //header tag
   headerList = document.querySelectorAll(".main-title-list"); //header tag 중 메뉴(new, past, job 등)
   body = document.querySelector("body");
+}
+
+function newScreen() {
+  deleteHTML(); //기존 화면 지우기
+  makeIndex(); //기존 index.html 화면 만들기
+
+  //아이템 list 화면 다시 불러오기
+  tdListNumber = 1;
+  itemNumber = 0;
+  moreCheckValue = 1;
+  makeData(selectHead_value);
+  makeHeader();
+  makeFooter();
+  makeHeaderActive(selectHead_name);
+  makeLoginUser();
+}
+
+function makeLoginUser () {
+  let loginButton = document.querySelector(".loginButton");
+  
+  for(let i = 0; i < userData.length; i++) {
+    if(userData[i][2] === true) {
+      loginButton.innerHTML = "";
+
+      let userDiv = document.createElement("div");
+      userDiv.classList.add("userDiv");
+      userDiv.innerHTML = userData[i][0]
+      loginButton.appendChild(userDiv);
+
+      let divisionDiv = document.createElement("div");
+      divisionDiv.classList.add("divisionDiv");
+      divisionDiv.innerHTML = " ( 1 ) | "; //"(1)"은 user의 Karma. 임의로 (1) 반영함 (HN API에서 정보 받을 수 있음)
+      loginButton.appendChild(divisionDiv);
+
+      let loginDiv = document.createElement("div");
+      loginDiv.classList.add("loginDiv");
+      loginDiv.innerHTML = "logout";
+      loginDiv.addEventListener("click", makeLoginLogout)
+      loginButton.appendChild(loginDiv);
+    }
+  }
+}
+
+function makeSubmitScreen_section (element, name, inputType) {
+  let newDiv = document.createElement("div");
+  newDiv.classList.add("submit_div")
+  element.appendChild(newDiv);
+
+  let newDiv_title = document.createElement("div");
+  newDiv_title.innerText = name;
+  newDiv_title.classList.add("submit_div_name");
+  newDiv.appendChild(newDiv_title);
+
+  let newDiv_input = document.createElement("input");
+  newDiv_input.setAttribute("type", inputType);
+  newDiv.appendChild(newDiv_input);
+
+  if(inputType === "textarea") {
+    newDiv_input.classList.add("submit_div_textarea");
+  } else {
+    newDiv_input.classList.add("submit_div_text");
+  }
+}
+
+function makeSubmitScreen_space (element) {
+  let newDiv = document.createElement("div");
+  newDiv.classList.add("submit_space");
+  element.appendChild(newDiv);
 }

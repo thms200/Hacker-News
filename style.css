@@ -29,7 +29,7 @@ header ul {
   display: flex;
   align-items: center;
   padding: 0;
-  margin: 0;
+  margin: auto 2px;
 }
 
 header li {
@@ -89,7 +89,7 @@ tbody {
   color: #828282;
 }
 
-.tr_info a {
+.tr_info a, .submint_info a {
   text-decoration: underline;
 }
 
@@ -195,7 +195,7 @@ footer span {
   }
 
   .main-title {
-    margin: 2px 0 0 2px;
+    margin: auto 2px;
   }
 
   .header-ul {
@@ -220,7 +220,7 @@ footer span {
   }
 
   input[type=text] {
-    width: 90%;
+    width: 80%;
   }
 }
 
@@ -238,13 +238,14 @@ footer span {
   }
 }
 
-.loginPart {
+.loginPart, .submitcommentdiv {
   margin: 20px 5px;
   font-size: 15px;
 }
 
 .login_comment {
   margin: 5px;
+  text-decoration: underline;
 }
 
 .login_title {
@@ -273,4 +274,47 @@ footer span {
 
 .login_div_username, .login_div_password {
   width: 100px;
+}
+
+.submit_div {
+  display: flex;
+  margin: 5px;
+}
+
+.submit_or {
+  margin: 5px;
+  padding-left: 40px;
+  font-weight: 800;
+  color: #828282;
+}
+
+.submit_button {
+  margin: 5px 5px 5px 40px;
+}
+
+.submit_div_name {
+  width: 30px;
+  padding: 2px;
+  color: #828282;
+}
+
+.submit_div_text {
+  height: 20px;
+  width: 80%;
+}
+
+.submit_div_textarea {
+  width: 80%;
+  height: 80px;
+}
+
+.submint_info {
+  width: 90%;
+  margin: 5px;
+  padding-left: 40px;
+  color: #828282;
+}
+
+.submit_space {
+  height: 10px;
 }

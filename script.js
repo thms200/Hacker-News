@@ -148,6 +148,13 @@ function makeHeader () {
   header.appendChild(login);
 
   makeHeaderFnc(header);
+
+  let submit = document.querySelectorAll(".main-title-list");
+  Array.prototype.forEach.call(submit, function(element){
+    if(element.innerText === "submit") {
+      element.addEventListener("click", makeSubmit);
+    }
+  })
 }
 
 //footer만들기
@@ -207,16 +214,24 @@ makeFooter();
 let body = document.querySelector("body");
 const checkUser = []; //입력한 아이디만 체크 (중복 가입 방지)
 const userData = []; //입력한 아이디, 비번 담아두기
+let isSumbit = false;
 
 // login button click하면 화면 구성
 function makeLoginLogout () {
-  if(event.target.innerText === "login") {
+  if(event.target.innerText === "login" || event.target.innerText === "submit") {
     deleteHTML();
     body.style.display = "block";
   
     let wrapper = document.createElement("div");
     wrapper.classList.add("wrapper");
     body.appendChild(wrapper);
+
+    if(event.target.innerText === "submit") {
+      let submitcommentdiv = document.createElement("div");
+      submitcommentdiv.classList.add("submitcommentdiv");
+      submitcommentdiv.innerText = "You have to be logged in to submit";
+      wrapper.insertBefore(submitcommentdiv, wrapper.firstChild);
+    }
   
     makeLoginPart(wrapper, "Login", "username : ", "password : ", "login");
     let comment = document.createElement("a");
@@ -224,7 +239,7 @@ function makeLoginLogout () {
     comment.innerText = "Forgot your password?";
     wrapper.appendChild(comment);
     makeLoginPart(wrapper, "Create Account", "username : ", "password : ", "create account");
-  } else {
+  } else { //logout을 할 때,
     deleteHTML(); //기존 화면 지우기
     makeIndex(); //기존 index.html 화면 만들기
 
@@ -281,20 +296,12 @@ function makeUser () {
 function doLogin (user, password) {
   for(let i = 0; i < userData.length; i++) {
     if(user === userData[i][0] && password === userData[i][1]) {
-      deleteHTML(); //기존 화면 지우기
-      makeIndex(); //기존 index.html 화면 만들기
-
-      //아이템 list 화면 다시 불러오기
-      tdListNumber = 1;
-      itemNumber = 0;
-      moreCheckValue = 1;
-      makeData(selectHead_value);
-      makeHeader();
-      makeFooter();
-      makeHeaderActive(selectHead_name);
-
       userData[i][2] = true; //Login한 user 표시;
-      makeLoginUser();
+      if(isSumbit === true) {
+        makeSubmitScreen();
+      } else {
+        newScreen();
+      }
     } 
   } 
 
@@ -309,28 +316,75 @@ function doLogin (user, password) {
   }
 }
 
-function makeLoginUser () {
-  let loginButton = document.querySelector(".loginButton");
-  
-  for(let i = 0; i < userData.length; i++) {
-    if(userData[i][2] === true) {
-      loginButton.innerHTML = "";
-
-      let userDiv = document.createElement("div");
-      userDiv.classList.add("userDiv");
-      userDiv.innerHTML = userData[i][0]
-      loginButton.appendChild(userDiv);
-
-      let divisionDiv = document.createElement("div");
-      divisionDiv.classList.add("divisionDiv");
-      divisionDiv.innerHTML = " ( 1 ) | "; //"(1)"은 user의 Karma. 임의로 (1) 반영함 (HN API에서 정보 받을 수 있음)
-      loginButton.appendChild(divisionDiv);
-
-      let loginDiv = document.createElement("div");
-      loginDiv.classList.add("loginDiv");
-      loginDiv.innerHTML = "logout";
-      loginDiv.addEventListener("click", makeLoginLogout)
-      loginButton.appendChild(loginDiv);
-    }
+function makeSubmit () {
+  let user = document.querySelector(".userDiv");
+  isSumbit = true;
+  if(!user) { //login이 되어있지 않은 상태면, login 화면 구성 -> login 누를 경우 첫화면 
+    makeLoginLogout();
+  } else { //login된 상황이면 submit 화면 구성 -> sumbit 누르면 첫화면 (item 추가는 미구현)
+    makeSubmitScreen();
   }
+}
+
+function makeSubmitScreen () {
+  deleteHTML();
+  body.style.display = "flex";
+  isSumbit = false;
+
+  let newHeader = document.createElement("header");
+  body.insertBefore(newHeader, body.firstChild);
+
+  let newImg = document.createElement("img");
+  newImg.setAttribute("src", "main.gif");
+  newImg.classList.add("main-img");
+  newHeader.appendChild(newImg);
+
+  let headerTitle = document.createElement("div");
+  headerTitle.classList.add("main-title");
+  headerTitle.innerText = "Submit";
+  newHeader.appendChild(headerTitle);
+
+  let newSection = document.createElement("section");
+  body.insertBefore(newSection, newHeader.nextSibling);
+
+  makeSubmitScreen_space(newSection);
+  makeSubmitScreen_section(newSection, "title", "text");
+  makeSubmitScreen_section(newSection, "url", "text");
+  let newSection_or = document.createElement("div");
+  newSection_or.classList.add("submit_or");
+  newSection_or.innerText = "or";
+  newSection.appendChild(newSection_or);
+  makeSubmitScreen_section(newSection, "text", "textarea");
+
+  let newSection_submit = document.createElement("input");
+  newSection_submit.classList.add("submit_button")
+  newSection_submit.setAttribute("type", "button");
+  newSection_submit.setAttribute("value", "submit");
+  newSection_submit.setAttribute("onclick", "newScreen()")
+  newSection.appendChild(newSection_submit);
+  makeSubmitScreen_space(newSection);
+  makeSubmitScreen_space(newSection);
+
+  let newSection_info = document.createElement("div");
+  newSection_info.classList.add("submint_info");
+  newSection.appendChild(newSection_info);
+
+  let newSection_info_comment = document.createElement("div");
+  newSection_info_comment.innerHTML = "	Leave url blank to submit a question for discussion. If there is no url, the text (if any) will appear at the top of the thread.";
+  newSection_info.appendChild(newSection_info_comment);
+
+  let newSection_br = document.createElement("br");
+  newSection_info.appendChild(newSection_br);
+
+  let newSection_info_comment2 = document.createElement("div");
+  newSection_info_comment2.innerText = "You can also submit via ";
+
+  let newSection_info_comment2_span = document.createElement("span");
+  let newSection_info_comment2_span_a = document.createElement("a");
+  newSection_info_comment2_span_a.innerText = "bookmarket";
+  newSection_info_comment2_span_a.setAttribute("href", "https://news.ycombinator.com/bookmarklet.html");
+  newSection_info_comment2_span.appendChild(newSection_info_comment2_span_a)
+  newSection_info_comment2.appendChild(newSection_info_comment2_span);
+  newSection_info.appendChild(newSection_info_comment2);
+  makeSubmitScreen_space(newSection);
 }
